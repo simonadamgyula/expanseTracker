@@ -1,7 +1,9 @@
-import 'package:expese_tracker/pages/main.dart';
+import 'package:expense_tracker/database.dart';
+import 'package:expense_tracker/pages/main.dart';
 import 'package:flutter/material.dart';
 
 void main() {
+  initDatabase();
   runApp(const MyApp());
 }
 

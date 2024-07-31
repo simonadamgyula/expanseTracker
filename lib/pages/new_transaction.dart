@@ -1,6 +1,10 @@
 import 'dart:developer';
 
+import 'package:expense_tracker/database.dart';
+import 'package:expense_tracker/transactions.dart';
 import 'package:flutter/material.dart';
+
+import '../categories.dart';
 
 class NewTransactionPage extends StatefulWidget {
   const NewTransactionPage({super.key, required this.isExpanse});
@@ -14,6 +18,7 @@ class NewTransactionPage extends StatefulWidget {
 class _NewTransactionPageState extends State<NewTransactionPage> {
   bool isExpanse = false;
   TextEditingController amountController = TextEditingController();
+  String selectedCategory = "";
 
   @override
   void initState() {
@@ -26,6 +31,12 @@ class _NewTransactionPageState extends State<NewTransactionPage> {
   void setCallback(bool isExpanse) {
     setState(() {
       this.isExpanse = isExpanse;
+    });
+  }
+
+  void categorySelectCallback(String category) {
+    setState(() {
+      selectedCategory = category;
     });
   }
 
@@ -53,6 +64,27 @@ class _NewTransactionPageState extends State<NewTransactionPage> {
             amountController: amountController,
             setIsExpanse: setCallback,
           ),
+          CategoriesSelect(
+            selectCallback: categorySelectCallback,
+            selected: selectedCategory,
+          ),
+          TextButton(
+            onPressed: () async {
+              final newTransaction = Transaction(
+                amount:
+                    double.parse(amountController.text) * (isExpanse ? -1 : 1),
+                category: selectedCategory,
+              );
+              await insertTransaction(newTransaction);
+              log((await getTransactions()).toString());
+            },
+            child: const Text(
+              "Create",
+              style: TextStyle(
+                color: Colors.white,
+              ),
+            ),
+          )
         ],
       ),
     );
@@ -159,6 +191,42 @@ class _AmountInputState extends State<AmountInput> {
           ),
         ),
       ],
+    );
+  }
+}
+
+class CategoriesSelect extends StatelessWidget {
+  const CategoriesSelect({
+    super.key,
+    required this.selectCallback,
+    required this.selected,
+  });
+
+  final void Function(String) selectCallback;
+  final String selected;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: GridView.count(
+        crossAxisCount: 3,
+        children: categories.map<Widget>((category) {
+          bool isSelected = selected == category;
+
+          return TextButton(
+            onPressed: () {
+              selectCallback(category);
+            },
+            child: Text(
+              category,
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+          );
+        }).toList(),
+      ),
     );
   }
 }
