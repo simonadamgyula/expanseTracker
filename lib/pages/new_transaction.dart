@@ -6,30 +6,31 @@ import 'package:flutter/material.dart';
 import '../categories.dart';
 
 class NewTransactionPage extends StatefulWidget {
-  const NewTransactionPage({super.key, required this.isExpanse});
+  const NewTransactionPage({super.key, required this.isExpense});
 
-  final bool isExpanse;
+  final bool isExpense;
 
   @override
   State<NewTransactionPage> createState() => _NewTransactionPageState();
 }
 
 class _NewTransactionPageState extends State<NewTransactionPage> {
-  bool isExpanse = false;
+  bool isExpense = false;
   TextEditingController amountController = TextEditingController();
+  TextEditingController detailsController = TextEditingController();
   String selectedCategory = "";
 
   @override
   void initState() {
     setState(() {
-      isExpanse = widget.isExpanse;
+      isExpense = widget.isExpense;
     });
     super.initState();
   }
 
-  void setCallback(bool isExpanse) {
+  void setCallback(bool isExpense) {
     setState(() {
-      this.isExpanse = isExpanse;
+      this.isExpense = isExpense;
     });
   }
 
@@ -53,25 +54,36 @@ class _NewTransactionPageState extends State<NewTransactionPage> {
         child: Column(
           children: [
             TypeSelectButton(
-              isExpanse: isExpanse,
+              isExpense: isExpense,
               setCallback: setCallback,
             ),
             AmountInput(
-              isExpanse: isExpanse,
+              isExpense: isExpense,
               amountController: amountController,
-              setIsExpanse: setCallback,
+              setIsExpense: setCallback,
+            ),
+            DetailsInput(
+              detailsController: detailsController,
+            ),
+            const Text(
+              "Categories",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 25,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             CategoriesSelect(
               selectCallback: categorySelectCallback,
               selected: selectedCategory,
             ),
-            TextButton(
+            ElevatedButton(
               onPressed: () async {
                 final newTransaction = Transaction(
                   amount: double.parse(amountController.text) *
-                      (isExpanse ? -1 : 1),
+                      (isExpense ? -1 : 1),
                   category: selectedCategory,
-                  receiver: '',
+                  details: detailsController.text,
                 );
                 await insertTransaction(newTransaction);
 
@@ -79,10 +91,20 @@ class _NewTransactionPageState extends State<NewTransactionPage> {
 
                 Navigator.pop(context);
               },
-              child: const Text(
-                "Create",
-                style: TextStyle(
-                  color: Colors.white,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: accentLight,
+                elevation: 8,
+              ),
+              child: const Padding(
+                padding: EdgeInsets.symmetric(
+                  vertical: 15,
+                  horizontal: 5,
+                ),
+                child: Text(
+                  "Create",
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
                 ),
               ),
             )
@@ -96,11 +118,11 @@ class _NewTransactionPageState extends State<NewTransactionPage> {
 class TypeSelectButton extends StatefulWidget {
   const TypeSelectButton({
     super.key,
-    required this.isExpanse,
+    required this.isExpense,
     required this.setCallback,
   });
 
-  final bool isExpanse;
+  final bool isExpense;
   final void Function(bool) setCallback;
 
   @override
@@ -130,12 +152,12 @@ class _TypeSelectButtonState extends State<TypeSelectButton> {
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<bool>(
-          value: widget.isExpanse,
+          value: widget.isExpense,
           items: const [
             DropdownMenuItem<bool>(
               value: true,
               child: Text(
-                "Expanse",
+                "Expense",
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                 ),
@@ -172,14 +194,14 @@ class _TypeSelectButtonState extends State<TypeSelectButton> {
 class AmountInput extends StatefulWidget {
   const AmountInput({
     super.key,
-    required this.isExpanse,
+    required this.isExpense,
     required this.amountController,
-    required this.setIsExpanse,
+    required this.setIsExpense,
   });
 
-  final bool isExpanse;
+  final bool isExpense;
   final TextEditingController amountController;
-  final void Function(bool) setIsExpanse;
+  final void Function(bool) setIsExpense;
 
   @override
   State<AmountInput> createState() => _AmountInputState();
@@ -192,7 +214,7 @@ class _AmountInputState extends State<AmountInput> {
       final number = double.tryParse(widget.amountController.text);
       if (number != null && number.isNegative) {
         setState(() {
-          widget.setIsExpanse(!widget.isExpanse);
+          widget.setIsExpense(!widget.isExpense);
           widget.amountController.text =
               widget.amountController.text.substring(1);
         });
@@ -219,13 +241,13 @@ class _AmountInputState extends State<AmountInput> {
         horizontal: 10,
         vertical: 4,
       ),
-      margin: const EdgeInsets.symmetric(vertical: 10),
+      margin: const EdgeInsets.symmetric(vertical: 20),
       child: Row(
         children: [
           Padding(
             padding: const EdgeInsets.only(right: 5),
             child: Text(
-              widget.isExpanse ? "+" : "-",
+              widget.isExpense ? "-" : "+",
               style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
@@ -258,6 +280,58 @@ class _AmountInputState extends State<AmountInput> {
   }
 }
 
+class DetailsInput extends StatefulWidget {
+  const DetailsInput({
+    super.key,
+    required this.detailsController,
+  });
+
+  final TextEditingController detailsController;
+
+  @override
+  State<DetailsInput> createState() => _DetailsInputState();
+}
+
+class _DetailsInputState extends State<DetailsInput> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: accentColor,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            offset: const Offset(0, 2),
+            blurRadius: 5,
+          )
+        ],
+      ),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 10,
+        vertical: 4,
+      ),
+      margin: const EdgeInsets.only(bottom: 30),
+      child: Expanded(
+        child: TextField(
+          controller: widget.detailsController,
+          style: const TextStyle(
+            color: Colors.white,
+          ),
+          decoration: const InputDecoration(
+            hintText: "Details",
+            hintStyle: TextStyle(
+              color: Colors.grey,
+              fontStyle: FontStyle.italic,
+            ),
+            border: InputBorder.none,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class CategoriesSelect extends StatelessWidget {
   const CategoriesSelect({
     super.key,
@@ -273,32 +347,51 @@ class CategoriesSelect extends StatelessWidget {
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.symmetric(
-          horizontal: 30,
+          horizontal: 20,
           vertical: 10,
         ),
         child: GridView.count(
           crossAxisCount: 3,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
+          crossAxisSpacing: 14,
+          mainAxisSpacing: 14,
+          childAspectRatio: (1 / 1.1),
           children: categories.map<Widget>((category) {
             bool isSelected = selected == category;
 
-            return MaterialButton(
-              color: isSelected ? accentLight : accentColor,
-              onPressed: () {
-                selectCallback(category);
-              },
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              elevation: 5,
-              child: Text(
-                category,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            return Column(
+              children: [
+                MaterialButton(
+                  color: isSelected ? primary : accentColor,
+                  onPressed: () {
+                    selectCallback(category);
+                  },
+                  shape: const CircleBorder(),
+                  elevation: 5,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      category.characters.first,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 25,
+                        fontWeight:
+                            isSelected ? FontWeight.bold : FontWeight.normal,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: Text(
+                    category,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
             );
           }).toList(),
         ),

@@ -1,10 +1,17 @@
 import 'package:expense_tracker/database.dart';
 import 'package:expense_tracker/pages/main.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 void main() {
   initDatabase();
+
   runApp(const MyApp());
+
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown
+  ]);
 }
 
 class MyApp extends StatelessWidget {

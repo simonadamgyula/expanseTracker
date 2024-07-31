@@ -1,18 +1,16 @@
 import 'dart:developer';
 
-import 'package:flutter/material.dart';
-
 class Transaction {
   final int? id;
   final String? createdAt;
-  final String receiver;
+  final String details;
   final double amount;
   final String category;
 
   const Transaction({
     this.id,
     this.createdAt,
-    required this.receiver,
+    required this.details,
     required this.amount,
     required this.category,
   });
@@ -21,7 +19,7 @@ class Transaction {
     return {
       "id": id,
       "amount": amount,
-      "receiver": receiver,
+      "details": details,
       "created_at": createdAt,
       "category": category,
     };
@@ -29,7 +27,7 @@ class Transaction {
 
   Map<String, Object?> toInsertMap() {
     return {
-      "receiver": receiver,
+      "details": details,
       "amount": amount,
       "category": category,
     };
@@ -37,7 +35,7 @@ class Transaction {
 
   @override
   String toString() {
-    return 'Transaction{id: $id, amount: $amount, receiver: $receiver, created_at: $createdAt, category: $category}';
+    return 'Transaction{id: $id, amount: $amount, receiver: $details, created_at: $createdAt, category: $category}';
   }
 
   factory Transaction.fromJson(Map<String, dynamic> json) {
@@ -51,28 +49,28 @@ class Transaction {
       {
         "id": int id,
         "amount": int amount,
-        "receiver": String receiver,
+        "details": String details,
         "createdAt": String createdAt,
         "category": String category,
       } =>
         Transaction(
           id: id,
           amount: amount.toDouble(),
-          receiver: receiver,
+          details: details,
           createdAt: createdAt,
           category: category,
         ),
       {
         "id": int id,
         "amount": double amount,
-        "receiver": String receiver,
+        "details": String details,
         "createdAt": String createdAt,
         "category": String category,
       } =>
         Transaction(
           id: id,
           amount: amount,
-          receiver: receiver,
+          details: details,
           createdAt: createdAt,
           category: category,
         ),

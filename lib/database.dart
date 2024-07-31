@@ -12,7 +12,7 @@ void initDatabase() async {
     join(await getDatabasesPath(), 'database.db'),
     onCreate: (db, version) {
       return db.execute(
-        "CREATE TABLE transactions (id INTEGER PRIMARY KEY AUTOINCREMENT, amount INTEGER, receiver TEXT, createdAt Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, category TEXT)",
+        "CREATE TABLE transactions (id INTEGER PRIMARY KEY AUTOINCREMENT, amount INTEGER, details TEXT, createdAt Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, category TEXT)",
       );
     },
     version: 1,

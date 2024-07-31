@@ -3,6 +3,7 @@ import 'package:expense_tracker/database.dart';
 import 'package:expense_tracker/pages/new_transaction.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
+import 'package:intl/intl.dart';
 
 import '../transactions.dart';
 
@@ -56,11 +57,14 @@ class _HomePageState extends State<HomePage> {
 
               final transactions = snapshot.data!;
 
-              return Column(
-                children: transactions
-                    .map((transaction) =>
-                        TransactionPreview(transaction: transaction))
-                    .toList(),
+              return Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  children: transactions
+                      .map((transaction) =>
+                          TransactionPreview(transaction: transaction))
+                      .toList(),
+                ),
               );
             },
           )
@@ -100,11 +104,16 @@ class _HomePageState extends State<HomePage> {
         children: [
           FloatingActionButton.small(
             onPressed: () {
+              final state = _key.currentState;
+              if (state != null) {
+                state.toggle();
+              }
+
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) =>
-                      const NewTransactionPage(isExpanse: false),
+                      const NewTransactionPage(isExpense: false),
                 ),
               );
             },
@@ -115,11 +124,17 @@ class _HomePageState extends State<HomePage> {
           ),
           FloatingActionButton.small(
             onPressed: () {
+              final state = _key.currentState;
+              if (state != null) {
+                debugPrint('isOpen:${state.isOpen}');
+                state.toggle();
+              }
+
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) =>
-                      const NewTransactionPage(isExpanse: true),
+                      const NewTransactionPage(isExpense: true),
                 ),
               );
             },
@@ -141,31 +156,50 @@ class TransactionPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    NumberFormat numberFormat = NumberFormat("#,##0.00", "en_US");
+
     return Container(
-      color: accentColor,
+      padding: const EdgeInsets.all(10),
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+          color: accentColor,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              offset: const Offset(0, 5),
+              blurRadius: 5,
+            )
+          ]),
       child: Row(
         children: [
           const Icon(Icons.noise_aware, color: Colors.white),
           Expanded(
-            child: Column(
-              children: [
-                Text(
-                  transaction.receiver,
-                  style: const TextStyle(
-                    color: Colors.white,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    transaction.details,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                    ),
                   ),
-                ),
-                Text(
-                  transaction.createdAt!,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  Text(
+                    transaction.createdAt!,
+                    style: const TextStyle(
+                      color: Colors.grey,
+                      fontSize: 12,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           Text(
-            transaction.amount.toString(),
+            "${numberFormat.format(transaction.amount)} HUF",
             style: const TextStyle(
               color: Colors.white,
             ),
