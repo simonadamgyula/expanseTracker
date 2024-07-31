@@ -1,11 +1,14 @@
 import 'package:expense_tracker/colors.dart';
 import 'package:expense_tracker/database.dart';
 import 'package:expense_tracker/pages/new_transaction.dart';
+import 'package:expense_tracker/pages/people.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:intl/intl.dart';
 
 import '../transactions.dart';
+
+NumberFormat numberFormat = NumberFormat("#,##0.00", "en_US");
 
 class HomePage extends StatefulWidget {
   final String title;
@@ -22,16 +25,83 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final futureTransactions = getTransactions(limit: 5);
+    final futureMoney = getMoney();
 
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
         title: Text(widget.title),
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PeoplePage(),
+                ),
+              );
+            },
+            icon: const Icon(
+              Icons.group,
+              color: Colors.white,
+            ),
+          )
+        ],
         foregroundColor: Colors.white,
         backgroundColor: accentDarker,
       ),
       body: Column(
         children: [
+          Container(
+            height: 80,
+            margin: const EdgeInsets.only(
+              top: 20,
+              bottom: 10,
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 40),
+            decoration: BoxDecoration(
+              color: accentColor,
+              borderRadius: BorderRadius.circular(40),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.3),
+                  offset: const Offset(0, 5),
+                  blurRadius: 15,
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                FutureBuilder<double>(
+                  future: futureMoney,
+                  builder: (context, AsyncSnapshot<double> snapshot) {
+                    if (!snapshot.hasData) {
+                      return const Text(
+                        "Loading...",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      );
+                    }
+
+                    final money = snapshot.data!;
+
+                    return Text(
+                      "${numberFormat.format(money)} HUF",
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
           const Text(
             "Here will be your this monthly report!",
             style: TextStyle(
@@ -115,7 +185,9 @@ class _HomePageState extends State<HomePage> {
                   builder: (context) =>
                       const NewTransactionPage(isExpense: false),
                 ),
-              );
+              ).then((_) {
+                setState(() {});
+              });
             },
             heroTag: null,
             backgroundColor: Colors.white,
@@ -136,7 +208,9 @@ class _HomePageState extends State<HomePage> {
                   builder: (context) =>
                       const NewTransactionPage(isExpense: true),
                 ),
-              );
+              ).then((_) {
+                setState(() {});
+              });
             },
             heroTag: null,
             backgroundColor: Colors.white,
@@ -156,8 +230,6 @@ class TransactionPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    NumberFormat numberFormat = NumberFormat("#,##0.00", "en_US");
-
     return Container(
       padding: const EdgeInsets.all(10),
       margin: const EdgeInsets.only(bottom: 10),

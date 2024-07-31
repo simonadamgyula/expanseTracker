@@ -39,12 +39,6 @@ class Transaction {
   }
 
   factory Transaction.fromJson(Map<String, dynamic> json) {
-    log(json.toString());
-    log(json["id"].runtimeType.toString());
-    log(json["amount"].runtimeType.toString());
-    log(json["createdAt"].runtimeType.toString());
-    log(json["category"].runtimeType.toString());
-
     return switch (json) {
       {
         "id": int id,
