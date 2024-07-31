@@ -4,13 +4,15 @@ import 'package:flutter/material.dart';
 
 class Transaction {
   final int? id;
-  final double amount;
   final String? createdAt;
+  final String receiver;
+  final double amount;
   final String category;
 
   const Transaction({
     this.id,
     this.createdAt,
+    required this.receiver,
     required this.amount,
     required this.category,
   });
@@ -19,6 +21,7 @@ class Transaction {
     return {
       "id": id,
       "amount": amount,
+      "receiver": receiver,
       "created_at": createdAt,
       "category": category,
     };
@@ -26,6 +29,7 @@ class Transaction {
 
   Map<String, Object?> toInsertMap() {
     return {
+      "receiver": receiver,
       "amount": amount,
       "category": category,
     };
@@ -33,7 +37,7 @@ class Transaction {
 
   @override
   String toString() {
-    return 'Dog{amount: $amount, created_at: $createdAt, category: $category}';
+    return 'Transaction{id: $id, amount: $amount, receiver: $receiver, created_at: $createdAt, category: $category}';
   }
 
   factory Transaction.fromJson(Map<String, dynamic> json) {
@@ -46,25 +50,29 @@ class Transaction {
     return switch (json) {
       {
         "id": int id,
-        "amount": double amount,
-        "created_at": String createdAt,
-        "category": String category,
-      } =>
-        Transaction(
-          id: id,
-          amount: amount,
-          createdAt: createdAt,
-          category: category,
-        ),
-      {
-        "id": int id,
         "amount": int amount,
-        "created_at": String createdAt,
+        "receiver": String receiver,
+        "createdAt": String createdAt,
         "category": String category,
       } =>
         Transaction(
           id: id,
           amount: amount.toDouble(),
+          receiver: receiver,
+          createdAt: createdAt,
+          category: category,
+        ),
+      {
+        "id": int id,
+        "amount": double amount,
+        "receiver": String receiver,
+        "createdAt": String createdAt,
+        "category": String category,
+      } =>
+        Transaction(
+          id: id,
+          amount: amount,
+          receiver: receiver,
           createdAt: createdAt,
           category: category,
         ),

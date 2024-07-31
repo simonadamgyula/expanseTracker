@@ -1,5 +1,4 @@
-import 'dart:developer';
-
+import 'package:expense_tracker/colors.dart';
 import 'package:expense_tracker/database.dart';
 import 'package:expense_tracker/transactions.dart';
 import 'package:flutter/material.dart';
@@ -43,49 +42,52 @@ class _NewTransactionPageState extends State<NewTransactionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: backgroundColor,
       appBar: AppBar(
         title: const Text("Add a transaction"),
         foregroundColor: Colors.white,
-        backgroundColor: Colors.black,
+        backgroundColor: accentDarker,
       ),
-      body: Column(
-        children: [
-          const Text(
-            "this is a text",
-            style: TextStyle(color: Colors.white),
-          ),
-          TypeSelectButton(
-            isExpanse: isExpanse,
-            setCallback: setCallback,
-          ),
-          AmountInput(
-            isExpanse: isExpanse,
-            amountController: amountController,
-            setIsExpanse: setCallback,
-          ),
-          CategoriesSelect(
-            selectCallback: categorySelectCallback,
-            selected: selectedCategory,
-          ),
-          TextButton(
-            onPressed: () async {
-              final newTransaction = Transaction(
-                amount:
-                    double.parse(amountController.text) * (isExpanse ? -1 : 1),
-                category: selectedCategory,
-              );
-              await insertTransaction(newTransaction);
-              log((await getTransactions()).toString());
-            },
-            child: const Text(
-              "Create",
-              style: TextStyle(
-                color: Colors.white,
-              ),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            TypeSelectButton(
+              isExpanse: isExpanse,
+              setCallback: setCallback,
             ),
-          )
-        ],
+            AmountInput(
+              isExpanse: isExpanse,
+              amountController: amountController,
+              setIsExpanse: setCallback,
+            ),
+            CategoriesSelect(
+              selectCallback: categorySelectCallback,
+              selected: selectedCategory,
+            ),
+            TextButton(
+              onPressed: () async {
+                final newTransaction = Transaction(
+                  amount: double.parse(amountController.text) *
+                      (isExpanse ? -1 : 1),
+                  category: selectedCategory,
+                  receiver: '',
+                );
+                await insertTransaction(newTransaction);
+
+                if (!context.mounted) return;
+
+                Navigator.pop(context);
+              },
+              child: const Text(
+                "Create",
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
@@ -108,21 +110,61 @@ class TypeSelectButton extends StatefulWidget {
 class _TypeSelectButtonState extends State<TypeSelectButton> {
   @override
   Widget build(BuildContext context) {
-    return DropdownButton<bool>(
-      value: widget.isExpanse,
-      items: const [
-        DropdownMenuItem<bool>(
-          value: true,
-          child: Text("Expanse"),
+    return Container(
+      padding: const EdgeInsets.only(
+        top: 2,
+        bottom: 2,
+        left: 16,
+        right: 8,
+      ),
+      decoration: BoxDecoration(
+        color: accentColor,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            offset: const Offset(0, 2),
+            blurRadius: 5,
+          )
+        ],
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<bool>(
+          value: widget.isExpanse,
+          items: const [
+            DropdownMenuItem<bool>(
+              value: true,
+              child: Text(
+                "Expanse",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            DropdownMenuItem<bool>(
+              value: false,
+              child: Text(
+                "Income",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+          onChanged: (value) {
+            widget.setCallback(value ?? false);
+          },
+          style: const TextStyle(
+            color: Colors.white,
+          ),
+          dropdownColor: accentLight,
+          borderRadius: BorderRadius.circular(10),
+          icon: const Icon(
+            Icons.arrow_drop_down,
+            color: Colors.white,
+          ),
         ),
-        DropdownMenuItem<bool>(
-          value: false,
-          child: Text("Income"),
-        ),
-      ],
-      onChanged: (value) {
-        widget.setCallback(value ?? false);
-      },
+      ),
     );
   }
 }
@@ -161,36 +203,57 @@ class _AmountInputState extends State<AmountInput> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        widget.isExpanse
-            ? const Icon(
-                Icons.remove,
+    return Container(
+      decoration: BoxDecoration(
+        color: accentColor,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            offset: const Offset(0, 2),
+            blurRadius: 5,
+          )
+        ],
+      ),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 10,
+        vertical: 4,
+      ),
+      margin: const EdgeInsets.symmetric(vertical: 10),
+      child: Row(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(right: 5),
+            child: Text(
+              widget.isExpanse ? "+" : "-",
+              style: const TextStyle(
                 color: Colors.white,
-              )
-            : const Icon(
-                Icons.add,
-                color: Colors.white,
-              ),
-        Expanded(
-          child: TextField(
-            controller: widget.amountController,
-            keyboardType: const TextInputType.numberWithOptions(
-              signed: true,
-              decimal: true,
-            ),
-            style: const TextStyle(
-              color: Colors.white,
-            ),
-            decoration: const InputDecoration(
-              labelText: "Amount",
-              labelStyle: TextStyle(
-                color: Colors.white,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ),
-        ),
-      ],
+          Expanded(
+            child: TextField(
+              controller: widget.amountController,
+              keyboardType: const TextInputType.numberWithOptions(
+                signed: true,
+                decimal: true,
+              ),
+              style: const TextStyle(
+                color: Colors.white,
+              ),
+              decoration: const InputDecoration(
+                hintText: "Amount",
+                hintStyle: TextStyle(
+                  color: Colors.grey,
+                  fontStyle: FontStyle.italic,
+                ),
+                border: InputBorder.none,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -208,24 +271,37 @@ class CategoriesSelect extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: GridView.count(
-        crossAxisCount: 3,
-        children: categories.map<Widget>((category) {
-          bool isSelected = selected == category;
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 30,
+          vertical: 10,
+        ),
+        child: GridView.count(
+          crossAxisCount: 3,
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 16,
+          children: categories.map<Widget>((category) {
+            bool isSelected = selected == category;
 
-          return TextButton(
-            onPressed: () {
-              selectCallback(category);
-            },
-            child: Text(
-              category,
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            return MaterialButton(
+              color: isSelected ? accentLight : accentColor,
+              onPressed: () {
+                selectCallback(category);
+              },
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
               ),
-            ),
-          );
-        }).toList(),
+              elevation: 5,
+              child: Text(
+                category,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                ),
+              ),
+            );
+          }).toList(),
+        ),
       ),
     );
   }

@@ -12,7 +12,7 @@ void initDatabase() async {
     join(await getDatabasesPath(), 'database.db'),
     onCreate: (db, version) {
       return db.execute(
-        "CREATE TABLE transactions (id INTEGER PRIMARY KEY AUTOINCREMENT, amount INTEGER, createdAt Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, category TEXT)",
+        "CREATE TABLE transactions (id INTEGER PRIMARY KEY AUTOINCREMENT, amount INTEGER, receiver TEXT, createdAt Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, category TEXT)",
       );
     },
     version: 1,
@@ -33,7 +33,7 @@ Future<List<transactions.Transaction>> getTransactions({int? limit}) async {
   final db = await database;
 
   final List<Map<String, Object?>> transactionMaps =
-      await db.query('transactions', limit: limit);
+      await db.query('transactions', limit: limit, orderBy: "createdAt");
 
   return [
     for (final transaction in transactionMaps)
