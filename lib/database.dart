@@ -61,7 +61,7 @@ Future<List<transactions.Transaction>> getTransactions({int? limit}) async {
   final db = await database;
 
   final List<Map<String, Object?>> transactionMaps =
-  await db.query('transactions', limit: limit, orderBy: "createdAt");
+  await db.query('transactions', limit: limit, orderBy: "createdAt DESC");
 
   return [
     for (final transaction in transactionMaps)

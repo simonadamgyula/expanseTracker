@@ -2,13 +2,12 @@ import 'package:expense_tracker/colors.dart';
 import 'package:expense_tracker/database.dart';
 import 'package:expense_tracker/pages/new_transaction.dart';
 import 'package:expense_tracker/pages/people.dart';
+import 'package:expense_tracker/pages/transactions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
-import 'package:intl/intl.dart';
 
+import '../transaction_preview.dart';
 import '../transactions.dart';
-
-NumberFormat numberFormat = NumberFormat("#,##0.00", "en_US");
 
 class HomePage extends StatefulWidget {
   final String title;
@@ -51,6 +50,7 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: accentDarker,
       ),
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
             height: 80,
@@ -62,6 +62,12 @@ class _HomePageState extends State<HomePage> {
             decoration: BoxDecoration(
               color: accentColor,
               borderRadius: BorderRadius.circular(40),
+              border: const Border(
+                top: BorderSide(color: primary, width: 0.2),
+                right: BorderSide(color: primary, width: 5),
+                bottom: BorderSide(color: primary, width: 0.2),
+                left: BorderSide(color: primary, width: 5),
+              ),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.3),
@@ -127,17 +133,62 @@ class _HomePageState extends State<HomePage> {
 
               final transactions = snapshot.data!;
 
-              return Padding(
-                padding: const EdgeInsets.all(20),
+              return Container(
+                margin: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: accentDark,
+                  borderRadius: BorderRadius.circular(14),
+                ),
                 child: Column(
                   children: transactions
-                      .map((transaction) =>
-                          TransactionPreview(transaction: transaction))
-                      .toList(),
+                          .map(
+                            (transaction) =>
+                                TransactionPreview(transaction: transaction)
+                                    as Widget,
+                          )
+                          .toList() +
+                      [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const TransactionsPage(),
+                              ),
+                            );
+                          },
+                          style: TextButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "View transactions",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(left: 10),
+                                child: Icon(
+                                  Icons.arrow_right_alt,
+                                  color: Colors.white,
+                                ),
+                              )
+                            ],
+                          ),
+                        )
+                      ],
                 ),
               );
             },
-          )
+          ),
         ],
       ),
       floatingActionButtonLocation: ExpandableFab.location,
@@ -217,65 +268,6 @@ class _HomePageState extends State<HomePage> {
             foregroundColor: Colors.black,
             child: const Icon(Icons.remove),
           )
-        ],
-      ),
-    );
-  }
-}
-
-class TransactionPreview extends StatelessWidget {
-  const TransactionPreview({super.key, required this.transaction});
-
-  final Transaction transaction;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      margin: const EdgeInsets.only(bottom: 10),
-      decoration: BoxDecoration(
-          color: accentColor,
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.2),
-              offset: const Offset(0, 5),
-              blurRadius: 5,
-            )
-          ]),
-      child: Row(
-        children: [
-          const Icon(Icons.noise_aware, color: Colors.white),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    transaction.details,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                    ),
-                  ),
-                  Text(
-                    transaction.createdAt!,
-                    style: const TextStyle(
-                      color: Colors.grey,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Text(
-            "${numberFormat.format(transaction.amount)} HUF",
-            style: const TextStyle(
-              color: Colors.white,
-            ),
-          ),
         ],
       ),
     );

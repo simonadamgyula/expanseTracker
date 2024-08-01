@@ -46,19 +46,19 @@ class _NewTransactionPageState extends State<NewTransactionPage> {
     });
   }
 
-  Future<void> createGeneralTransaction() async {
+  Future<void> createGeneralTransaction(double amount) async {
     final newTransaction = Transaction(
-      amount: double.parse(amountController.text) * (isExpense ? -1 : 1),
+      amount: amount,
       category: selectedCategory,
       details: detailsController.text,
     );
     await insertTransaction(newTransaction);
   }
 
-  Future<void> createPersonTransaction() async {
+  Future<void> createPersonTransaction(double amount) async {
     final newTransaction = PersonTransaction(
       personId: widget.person!.id!,
-      amount: double.parse(amountController.text) * (isExpense ? -1 : 1),
+      amount: amount,
       category: selectedCategory,
       details: detailsController.text,
     );
@@ -105,10 +105,11 @@ class _NewTransactionPageState extends State<NewTransactionPage> {
             ),
             ElevatedButton(
               onPressed: () async {
+                final amount = double.parse(amountController.text.replaceAll(",", "")) * (isExpense ? -1 : 1);
                 if (widget.person == null) {
-                  await createGeneralTransaction();
+                  await createGeneralTransaction(amount);
                 } else {
-                  await createPersonTransaction();
+                  await createPersonTransaction(amount);
                 }
 
                 if (!context.mounted) return;

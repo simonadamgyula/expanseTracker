@@ -1,5 +1,6 @@
 import 'package:expense_tracker/colors.dart';
 import 'package:expense_tracker/database.dart';
+import 'package:expense_tracker/transaction_preview.dart';
 import 'package:flutter/material.dart';
 
 import '../people.dart';
@@ -37,12 +38,13 @@ class _PeoplePageState extends State<PeoplePage> {
 
           final people = snapshot.data!;
 
-          return Column(
-            children: people.map((person) {
-              return Text(
-                person.toString(),
-              );
-            }).toList(),
+          return Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: people.map((person) {
+                return PersonPreview(person: person);
+              }).toList(),
+            ),
           );
         },
       ),
@@ -61,6 +63,85 @@ class _PeoplePageState extends State<PeoplePage> {
         foregroundColor: Colors.white,
         shape: const CircleBorder(),
         child: const Icon(Icons.add),
+      ),
+    );
+  }
+}
+
+class PersonPreview extends StatelessWidget {
+  const PersonPreview({super.key, required this.person});
+
+  final Person person;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: accentColor,
+        borderRadius: BorderRadius.circular(10),
+        border: const Border(
+            left: BorderSide(
+              color: primary,
+              width: 4,
+            ),
+            right: BorderSide(
+              color: primary,
+              width: 0.5,
+            )),
+      ),
+      padding: const EdgeInsets.all(10),
+      margin: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            margin: const EdgeInsets.only(
+              right: 20,
+              left: 5,
+            ),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: accentLight,
+              border: Border.all(
+                color: Colors.white.withOpacity(0.1),
+                width: 1,
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  person.name.characters.first,
+                  style: const TextStyle(
+                    color: primary,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Text(
+              person.name,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 10),
+            child: Text(
+              "${numberFormat.format(person.amount)} HUF",
+              style: const TextStyle(
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
