@@ -3,10 +3,16 @@ import 'package:expense_tracker/database.dart';
 import 'package:flutter/material.dart';
 
 import '../people.dart';
+import 'new_person.dart';
 
-class PeoplePage extends StatelessWidget {
+class PeoplePage extends StatefulWidget {
   const PeoplePage({super.key});
 
+  @override
+  State<PeoplePage> createState() => _PeoplePageState();
+}
+
+class _PeoplePageState extends State<PeoplePage> {
   @override
   Widget build(BuildContext context) {
     final futurePeople = getPeople();
@@ -39,7 +45,23 @@ class PeoplePage extends StatelessWidget {
             }).toList(),
           );
         },
-      )
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const NewPersonPage(),
+            ),
+          ).then((_) {
+            setState(() {});
+          });
+        },
+        backgroundColor: primary,
+        foregroundColor: Colors.white,
+        shape: const CircleBorder(),
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }

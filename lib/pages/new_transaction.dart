@@ -4,11 +4,17 @@ import 'package:expense_tracker/transactions.dart';
 import 'package:flutter/material.dart';
 
 import '../categories.dart';
+import '../people.dart';
 
 class NewTransactionPage extends StatefulWidget {
-  const NewTransactionPage({super.key, required this.isExpense});
+  const NewTransactionPage({
+    super.key,
+    required this.isExpense,
+    this.person,
+  });
 
   final bool isExpense;
+  final Person? person;
 
   @override
   State<NewTransactionPage> createState() => _NewTransactionPageState();
@@ -40,12 +46,32 @@ class _NewTransactionPageState extends State<NewTransactionPage> {
     });
   }
 
+  Future<void> createGeneralTransaction() async {
+    final newTransaction = Transaction(
+      amount: double.parse(amountController.text) * (isExpense ? -1 : 1),
+      category: selectedCategory,
+      details: detailsController.text,
+    );
+    await insertTransaction(newTransaction);
+  }
+
+  Future<void> createPersonTransaction() async {
+    final newTransaction = PersonTransaction(
+      personId: widget.person!.id!,
+      amount: double.parse(amountController.text) * (isExpense ? -1 : 1),
+      category: selectedCategory,
+      details: detailsController.text,
+    );
+    await insertPersonTransaction(newTransaction, person: widget.person);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
-        title: const Text("Add a transaction"),
+        title: Text(
+            "Add a transaction ${widget.person == null ? "" : "(${widget.person!.name})"}"),
         foregroundColor: Colors.white,
         backgroundColor: accentDarker,
       ),
@@ -79,13 +105,11 @@ class _NewTransactionPageState extends State<NewTransactionPage> {
             ),
             ElevatedButton(
               onPressed: () async {
-                final newTransaction = Transaction(
-                  amount: double.parse(amountController.text) *
-                      (isExpense ? -1 : 1),
-                  category: selectedCategory,
-                  details: detailsController.text,
-                );
-                await insertTransaction(newTransaction);
+                if (widget.person == null) {
+                  await createGeneralTransaction();
+                } else {
+                  await createPersonTransaction();
+                }
 
                 if (!context.mounted) return;
 

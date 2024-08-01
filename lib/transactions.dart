@@ -72,3 +72,84 @@ class Transaction {
     };
   }
 }
+
+class PersonTransaction {
+  final int? id;
+  final int personId;
+  final String? createdAt;
+  final String details;
+  final double amount;
+  final String category;
+
+  const PersonTransaction({
+    this.id,
+    this.createdAt,
+    required this.details,
+    required this.amount,
+    required this.category,
+    required this.personId,
+  });
+
+  Map<String, Object?> toMap() {
+    return {
+      "id": id,
+      "personId": personId,
+      "amount": amount,
+      "details": details,
+      "created_at": createdAt,
+      "category": category,
+    };
+  }
+
+  Map<String, Object?> toInsertMap() {
+    return {
+      "personId": personId,
+      "details": details,
+      "amount": amount,
+      "category": category,
+    };
+  }
+
+  @override
+  String toString() {
+    return 'PersonTransaction{id: $id, personId: $personId, amount: $amount, receiver: $details, created_at: $createdAt, category: $category}';
+  }
+
+  factory PersonTransaction.fromJson(Map<String, dynamic> json) {
+    return switch (json) {
+      {
+        "id": int id,
+        "personId": int personId,
+        "amount": int amount,
+        "details": String details,
+        "createdAt": String createdAt,
+        "category": String category,
+      } =>
+        PersonTransaction(
+          id: id,
+          personId: personId,
+          amount: amount.toDouble(),
+          details: details,
+          createdAt: createdAt,
+          category: category,
+        ),
+      {
+        "id": int id,
+        "personId": int personId,
+        "amount": double amount,
+        "details": String details,
+        "createdAt": String createdAt,
+        "category": String category,
+      } =>
+        PersonTransaction(
+          id: id,
+          personId: personId,
+          amount: amount,
+          details: details,
+          createdAt: createdAt,
+          category: category,
+        ),
+      _ => throw const FormatException("Wrong person transaction format"),
+    };
+  }
+}

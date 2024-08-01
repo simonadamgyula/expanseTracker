@@ -9,9 +9,11 @@ late final Future<Database> database;
 void createDb(Database db) {
   db.execute("CREATE TABLE keyedData (key TEXT PRIMARY KEY, value TEXT)");
   db.execute(
-      "CREATE TABLE transactions (id INTEGER PRIMARY KEY AUTOINCREMENT, amount INTEGER, details TEXT, createdAt Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, category TEXT)");
+      "CREATE TABLE transactions (id INTEGER PRIMARY KEY AUTOINCREMENT, amount FLOAT, details TEXT, createdAt Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, category TEXT)");
   db.execute(
-      "CREATE TABLE people (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT);");
+      "CREATE TABLE people_transactions (id INTEGER PRIMARY KEY AUTOINCREMENT, personId INTEGER, amount FLOAT, details TEXT, createdAt Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, category TEXT)");
+  db.execute(
+      "CREATE TABLE people (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, amount FLOAT);");
   db.execute("INSERT INTO keyedData (key, value) VALUES('money', '0')");
 }
 
@@ -38,11 +40,28 @@ Future<void> insertTransaction(transactions.Transaction transaction) async {
   await updateMoney(money + transaction.amount);
 }
 
+Future<void> insertPersonTransaction(transactions.PersonTransaction transaction,
+    {Person? person}) async {
+  final db = await database;
+
+  person ??= await getPerson(transaction.personId);
+
+  await db.insert(
+    "people_transactions",
+    transaction.toInsertMap(),
+    conflictAlgorithm: ConflictAlgorithm.replace,
+  );
+
+  person.amount += transaction.amount;
+
+  await updatePerson(person);
+}
+
 Future<List<transactions.Transaction>> getTransactions({int? limit}) async {
   final db = await database;
 
   final List<Map<String, Object?>> transactionMaps =
-      await db.query('transactions', limit: limit, orderBy: "createdAt");
+  await db.query('transactions', limit: limit, orderBy: "createdAt");
 
   return [
     for (final transaction in transactionMaps)
@@ -87,7 +106,7 @@ Future<String> getValue(String key) async {
   final db = await database;
 
   final keyList =
-      await db.query("keyedData", where: "key = ?", whereArgs: [key]);
+  await db.query("keyedData", where: "key = ?", whereArgs: [key]);
   return keyList[0]["value"] as String;
 }
 
@@ -115,9 +134,25 @@ Future<List<Person>> getPeople() async {
   final db = await database;
 
   final List<Map<String, Object?>> transactionMaps =
-      await db.query('people', orderBy: "id");
+  await db.query('people', orderBy: "id");
 
   return [
     for (final transaction in transactionMaps) Person.fromJson(transaction),
   ];
+}
+
+Future<Person> getPerson(int id) async {
+  final db = await database;
+
+  final List<Map<String, Object?>> persons = await db.query(
+    "people", where: "id = ?", whereArgs: [id], limit: 1,);
+
+  return Person.fromJson(persons.first);
+}
+
+Future<void> updatePerson(Person person) async {
+  final db = await database;
+
+  await db.update(
+    "people", person.toMap(), where: "id = ?", whereArgs: [person.id,],);
 }
