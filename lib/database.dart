@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:expense_tracker/people.dart';
 import 'package:expense_tracker/transactions.dart' as transactions;
+import 'package:expense_tracker/transactions.dart';
 import 'package:flutter/widgets.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -13,7 +14,7 @@ void createDb(Database db) {
   db.execute(
       "CREATE TABLE transactions (id INTEGER PRIMARY KEY AUTOINCREMENT, amount FLOAT, details TEXT, createdAt Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, category TEXT)");
   db.execute(
-      "CREATE TABLE people_transactions (id INTEGER PRIMARY KEY AUTOINCREMENT, personId INTEGER, amount FLOAT, details TEXT, createdAt Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, category TEXT)");
+      "CREATE TABLE people_transactions (id INTEGER PRIMARY KEY AUTOINCREMENT, personId INTEGER, amount FLOAT, details TEXT, createdAt Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, category TEXT, isMoneyTransfer BOOLEAN)");
   db.execute(
       "CREATE TABLE people (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, amount FLOAT);");
   db.execute("INSERT INTO keyedData (key, value) VALUES('money', '0')");
@@ -59,8 +60,20 @@ Future<void> insertPersonTransaction(
   person.amount += transaction.amount;
 
   await updatePerson(person);
-  final money = await getMoney();
-  await updateMoney(money + transaction.amount);
+
+  if (transaction.isMoneyTransfer) {
+    final transactions.Transaction regularTransaction =
+        transactions.Transaction(
+      details: transaction.details,
+      amount: transaction.amount,
+      category: transaction.category,
+    );
+
+    insertTransaction(regularTransaction);
+
+    final money = await getMoney();
+    await updateMoney(money + transaction.amount);
+  }
 }
 
 Future<List<transactions.Transaction>> getTransactions({int? limit}) async {
@@ -191,4 +204,17 @@ Future<void> updatePerson(Person person) async {
       person.id,
     ],
   );
+}
+
+Future<double> getPersonalDebt(int personId) async {
+  double personalDebt = 0;
+
+  List<transactions.PersonTransaction> personalTransactions =
+      await getPersonTransactions(personId: personId);
+
+  for (transactions.PersonTransaction transaction in personalTransactions) {
+    personalDebt += transaction.amount;
+  }
+
+  return personalDebt;
 }

@@ -24,6 +24,7 @@ class NewTransactionPage extends StatefulWidget {
 
 class _NewTransactionPageState extends State<NewTransactionPage> {
   bool isExpense = false;
+  bool isMoneyTransfer = false;
   TextEditingController amountController = TextEditingController();
   TextEditingController detailsController = TextEditingController();
   String selectedCategory = "";
@@ -63,6 +64,7 @@ class _NewTransactionPageState extends State<NewTransactionPage> {
       amount: amount,
       category: selectedCategory,
       details: detailsController.text,
+      isMoneyTransfer: isMoneyTransfer,
     );
     await insertPersonTransaction(newTransaction, person: widget.person);
   }
@@ -95,6 +97,28 @@ class _NewTransactionPageState extends State<NewTransactionPage> {
             DetailsInput(
               detailsController: detailsController,
             ),
+            widget.person != null
+                ? Padding(
+                  padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
+                  child: CheckboxListTile(
+                      value: isMoneyTransfer,
+                      title: const Text(
+                        "Money transfer?",
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                      activeColor: primary,
+                      checkColor: accentColor,
+                      controlAffinity: ListTileControlAffinity.trailing,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          isMoneyTransfer = value!;
+                        });
+                      },
+                    ),
+                )
+                : const SizedBox(),
             const Text(
               "Categories",
               style: TextStyle(
@@ -109,7 +133,9 @@ class _NewTransactionPageState extends State<NewTransactionPage> {
             ),
             ElevatedButton(
               onPressed: () async {
-                final amount = double.parse(amountController.text.replaceAll(",", "")) * (isExpense ? -1 : 1);
+                final amount =
+                    double.parse(amountController.text.replaceAll(",", "")) *
+                        (isExpense ? -1 : 1);
                 if (widget.person == null) {
                   await createGeneralTransaction(amount);
                 } else {

@@ -80,6 +80,7 @@ class PersonTransaction {
   final String details;
   final double amount;
   final String category;
+  final bool isMoneyTransfer;
 
   const PersonTransaction({
     this.id,
@@ -88,6 +89,7 @@ class PersonTransaction {
     required this.amount,
     required this.category,
     required this.personId,
+    required this.isMoneyTransfer,
   });
 
   Map<String, Object?> toMap() {
@@ -98,12 +100,22 @@ class PersonTransaction {
       "details": details,
       "created_at": createdAt,
       "category": category,
+      "isMoneyTransfer": isMoneyTransfer
     };
   }
 
   Map<String, Object?> toInsertMap() {
     return {
       "personId": personId,
+      "details": details,
+      "amount": amount,
+      "category": category,
+      "isMoneyTransfer": isMoneyTransfer,
+    };
+  }
+
+  Map<String, Object> toInsertRegular() {
+    return {
       "details": details,
       "amount": amount,
       "category": category,
@@ -116,6 +128,9 @@ class PersonTransaction {
   }
 
   factory PersonTransaction.fromJson(Map<String, dynamic> json) {
+    log(json["isMoneyTransfer"].runtimeType.toString());
+    log(json.toString());
+
     return switch (json) {
       {
         "id": int id,
@@ -124,6 +139,7 @@ class PersonTransaction {
         "details": String details,
         "createdAt": String createdAt,
         "category": String category,
+        "isMoneyTransfer": int isMoneyTransfer,
       } =>
         PersonTransaction(
           id: id,
@@ -132,6 +148,7 @@ class PersonTransaction {
           details: details,
           createdAt: createdAt,
           category: category,
+          isMoneyTransfer: isMoneyTransfer == 1,
         ),
       {
         "id": int id,
@@ -140,6 +157,7 @@ class PersonTransaction {
         "details": String details,
         "createdAt": String createdAt,
         "category": String category,
+        "isMoneyTransfer": int isMoneyTransfer,
       } =>
         PersonTransaction(
           id: id,
@@ -148,6 +166,7 @@ class PersonTransaction {
           details: details,
           createdAt: createdAt,
           category: category,
+          isMoneyTransfer: isMoneyTransfer == 1,
         ),
       _ => throw const FormatException("Wrong person transaction format"),
     };

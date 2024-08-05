@@ -83,6 +83,16 @@ class _HomePageState extends State<HomePage> {
                 FutureBuilder<double>(
                   future: futureMoney,
                   builder: (context, AsyncSnapshot<double> snapshot) {
+                    if (snapshot.hasError) {
+                      return const Text(
+                        "Loading...",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      );
+                    }
                     if (!snapshot.hasData) {
                       return const Text(
                         "Loading...",
@@ -109,11 +119,8 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
-          const Text(
-            "Here will be your this monthly report!",
-            style: TextStyle(
-              color: Colors.white,
-            ),
+          const SizedBox(
+            height: 20,
           ),
           FutureBuilder(
             future: futureTransactions,

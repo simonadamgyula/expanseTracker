@@ -1,12 +1,13 @@
+import 'dart:developer';
+
 import 'package:expense_tracker/pages/new_transaction.dart';
 import 'package:expense_tracker/people.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 
 import 'colors.dart';
 
-class NewTransactionsFab extends StatelessWidget {
+class NewTransactionsFab extends StatefulWidget {
   const NewTransactionsFab({super.key, required this.updateState, required this.fabKey, this.person});
 
   final void Function() updateState;
@@ -14,9 +15,14 @@ class NewTransactionsFab extends StatelessWidget {
   final Person? person;
 
   @override
+  State<NewTransactionsFab> createState() => _NewTransactionsFabState();
+}
+
+class _NewTransactionsFabState extends State<NewTransactionsFab> {
+  @override
   Widget build(BuildContext context) {
     return ExpandableFab(
-      key: key,
+      key: widget.fabKey,
       openButtonBuilder: RotateFloatingActionButtonBuilder(
         child: const Icon(Icons.compare_arrows),
         fabSize: ExpandableFabSize.regular,
@@ -48,7 +54,7 @@ class NewTransactionsFab extends StatelessWidget {
       children: [
         FloatingActionButton.small(
           onPressed: () {
-            final state = fabKey.currentState;
+            final state = widget.fabKey.currentState;
             if (state != null) {
               state.toggle();
             }
@@ -57,10 +63,10 @@ class NewTransactionsFab extends StatelessWidget {
               context,
               MaterialPageRoute(
                 builder: (context) =>
-                NewTransactionPage(isExpense: false, person: person,),
+                NewTransactionPage(isExpense: false, person: widget.person,),
               ),
             ).then((_) {
-              updateState();
+              widget.updateState();
             });
           },
           heroTag: null,
@@ -70,9 +76,8 @@ class NewTransactionsFab extends StatelessWidget {
         ),
         FloatingActionButton.small(
           onPressed: () {
-            final state = fabKey.currentState;
+            final state = widget.fabKey.currentState;
             if (state != null) {
-              debugPrint('isOpen:${state.isOpen}');
               state.toggle();
             }
 
@@ -80,10 +85,10 @@ class NewTransactionsFab extends StatelessWidget {
               context,
               MaterialPageRoute(
                 builder: (context) =>
-                NewTransactionPage(isExpense: true, person: person,),
+                NewTransactionPage(isExpense: true, person: widget.person,),
               ),
             ).then((_) {
-              updateState();
+              widget.updateState();
             });
           },
           heroTag: null,
@@ -94,5 +99,4 @@ class NewTransactionsFab extends StatelessWidget {
       ],
     );
   }
-
 }
