@@ -6,6 +6,7 @@ import 'package:expense_tracker/pages/transactions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 
+import '../new_transaction_fab.dart';
 import '../transaction_preview.dart';
 import '../transactions.dart';
 
@@ -141,50 +142,66 @@ class _HomePageState extends State<HomePage> {
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Column(
-                  children: transactions
-                          .map(
-                            (transaction) =>
-                                TransactionPreview(transaction: transaction)
-                                    as Widget,
-                          )
-                          .toList() +
-                      [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const TransactionsPage(),
+                  children: transactions.isEmpty
+                      ? [
+                          Container(
+                            alignment: Alignment.center,
+                            padding: const EdgeInsets.all(20),
+                            child: const Text(
+                              "No transactions available",
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontStyle: FontStyle.italic,
+                                fontSize: 20,
                               ),
-                            );
-                          },
-                          style: TextButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
                             ),
-                          ),
-                          child: const Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                "View transactions",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20,
-                                  fontStyle: FontStyle.italic,
+                          ) as Widget,
+                        ]
+                      : (transactions
+                              .map(
+                                (transaction) =>
+                                    TransactionPreview(transaction: transaction)
+                                        as Widget,
+                              )
+                              .toList() +
+                          [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const TransactionsPage(),
+                                  ),
+                                );
+                              },
+                              style: TextButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
                                 ),
                               ),
-                              Padding(
-                                padding: EdgeInsets.only(left: 10),
-                                child: Icon(
-                                  Icons.arrow_right_alt,
-                                  color: Colors.white,
-                                ),
-                              )
-                            ],
-                          ),
-                        )
-                      ],
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    "View transactions",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 20,
+                                      fontStyle: FontStyle.italic,
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.only(left: 10),
+                                    child: Icon(
+                                      Icons.arrow_right_alt,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ]),
                 ),
               );
             },
@@ -192,83 +209,11 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       floatingActionButtonLocation: ExpandableFab.location,
-      floatingActionButton: ExpandableFab(
-        key: _key,
-        openButtonBuilder: RotateFloatingActionButtonBuilder(
-          child: const Icon(Icons.compare_arrows),
-          fabSize: ExpandableFabSize.regular,
-          foregroundColor: Colors.white,
-          backgroundColor: primary,
-          shape: const CircleBorder(),
-        ),
-        closeButtonBuilder: FloatingActionButtonBuilder(
-          size: 56,
-          builder: (BuildContext context, void Function()? onPressed,
-              Animation<double> progress) {
-            return IconButton(
-              onPressed: onPressed,
-              icon: const Icon(
-                Icons.close,
-                size: 40,
-                color: Colors.white,
-              ),
-            );
-          },
-        ),
-        distance: 80,
-        childrenOffset: const Offset(4, 0),
-        type: ExpandableFabType.up,
-        overlayStyle: ExpandableFabOverlayStyle(
-          color: Colors.white.withOpacity(0.1),
-          blur: 5,
-        ),
-        children: [
-          FloatingActionButton.small(
-            onPressed: () {
-              final state = _key.currentState;
-              if (state != null) {
-                state.toggle();
-              }
-
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      const NewTransactionPage(isExpense: false),
-                ),
-              ).then((_) {
-                setState(() {});
-              });
-            },
-            heroTag: null,
-            backgroundColor: Colors.white,
-            foregroundColor: Colors.black,
-            child: const Icon(Icons.add),
-          ),
-          FloatingActionButton.small(
-            onPressed: () {
-              final state = _key.currentState;
-              if (state != null) {
-                debugPrint('isOpen:${state.isOpen}');
-                state.toggle();
-              }
-
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      const NewTransactionPage(isExpense: true),
-                ),
-              ).then((_) {
-                setState(() {});
-              });
-            },
-            heroTag: null,
-            backgroundColor: Colors.white,
-            foregroundColor: Colors.black,
-            child: const Icon(Icons.remove),
-          )
-        ],
+      floatingActionButton: NewTransactionsFab(
+        updateState: () {
+          setState(() {});
+        },
+        fabKey: _key,
       ),
     );
   }

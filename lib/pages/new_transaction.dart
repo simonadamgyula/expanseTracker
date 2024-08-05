@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:expense_tracker/colors.dart';
 import 'package:expense_tracker/database.dart';
 import 'package:expense_tracker/transactions.dart';
@@ -67,6 +69,8 @@ class _NewTransactionPageState extends State<NewTransactionPage> {
 
   @override
   Widget build(BuildContext context) {
+    log(widget.person.toString());
+
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
@@ -337,20 +341,18 @@ class _DetailsInputState extends State<DetailsInput> {
         vertical: 4,
       ),
       margin: const EdgeInsets.only(bottom: 30),
-      child: Expanded(
-        child: TextField(
-          controller: widget.detailsController,
-          style: const TextStyle(
-            color: Colors.white,
+      child: TextField(
+        controller: widget.detailsController,
+        style: const TextStyle(
+          color: Colors.white,
+        ),
+        decoration: const InputDecoration(
+          hintText: "Details",
+          hintStyle: TextStyle(
+            color: Colors.grey,
+            fontStyle: FontStyle.italic,
           ),
-          decoration: const InputDecoration(
-            hintText: "Details",
-            hintStyle: TextStyle(
-              color: Colors.grey,
-              fontStyle: FontStyle.italic,
-            ),
-            border: InputBorder.none,
-          ),
+          border: InputBorder.none,
         ),
       ),
     );

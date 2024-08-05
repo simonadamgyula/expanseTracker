@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:expense_tracker/people.dart';
 import 'package:expense_tracker/transactions.dart' as transactions;
 import 'package:flutter/widgets.dart';
@@ -40,8 +42,10 @@ Future<void> insertTransaction(transactions.Transaction transaction) async {
   await updateMoney(money + transaction.amount);
 }
 
-Future<void> insertPersonTransaction(transactions.PersonTransaction transaction,
-    {Person? person}) async {
+Future<void> insertPersonTransaction(
+  transactions.PersonTransaction transaction, {
+  Person? person,
+}) async {
   final db = await database;
 
   person ??= await getPerson(transaction.personId);
@@ -55,17 +59,39 @@ Future<void> insertPersonTransaction(transactions.PersonTransaction transaction,
   person.amount += transaction.amount;
 
   await updatePerson(person);
+  final money = await getMoney();
+  await updateMoney(money + transaction.amount);
 }
 
 Future<List<transactions.Transaction>> getTransactions({int? limit}) async {
   final db = await database;
 
   final List<Map<String, Object?>> transactionMaps =
-  await db.query('transactions', limit: limit, orderBy: "createdAt DESC");
+      await db.query('transactions', limit: limit, orderBy: "createdAt DESC");
 
   return [
     for (final transaction in transactionMaps)
       transactions.Transaction.fromJson(transaction),
+  ];
+}
+
+Future<List<transactions.PersonTransaction>> getPersonTransactions({
+  required int personId,
+  int? limit,
+}) async {
+  final db = await database;
+
+  final List<Map<String, Object?>> transactionMaps = await db.query(
+    'people_transactions',
+    where: "personId = ?",
+    whereArgs: [personId],
+    limit: limit,
+    orderBy: "createdAt DESC",
+  );
+
+  return [
+    for (final transaction in transactionMaps)
+      transactions.PersonTransaction.fromJson(transaction),
   ];
 }
 
@@ -106,7 +132,7 @@ Future<String> getValue(String key) async {
   final db = await database;
 
   final keyList =
-  await db.query("keyedData", where: "key = ?", whereArgs: [key]);
+      await db.query("keyedData", where: "key = ?", whereArgs: [key]);
   return keyList[0]["value"] as String;
 }
 
@@ -134,7 +160,7 @@ Future<List<Person>> getPeople() async {
   final db = await database;
 
   final List<Map<String, Object?>> transactionMaps =
-  await db.query('people', orderBy: "id");
+      await db.query('people', orderBy: "id");
 
   return [
     for (final transaction in transactionMaps) Person.fromJson(transaction),
@@ -145,7 +171,11 @@ Future<Person> getPerson(int id) async {
   final db = await database;
 
   final List<Map<String, Object?>> persons = await db.query(
-    "people", where: "id = ?", whereArgs: [id], limit: 1,);
+    "people",
+    where: "id = ?",
+    whereArgs: [id],
+    limit: 1,
+  );
 
   return Person.fromJson(persons.first);
 }
@@ -154,5 +184,11 @@ Future<void> updatePerson(Person person) async {
   final db = await database;
 
   await db.update(
-    "people", person.toMap(), where: "id = ?", whereArgs: [person.id,],);
+    "people",
+    person.toMap(),
+    where: "id = ?",
+    whereArgs: [
+      person.id,
+    ],
+  );
 }

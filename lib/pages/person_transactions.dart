@@ -5,8 +5,12 @@ import 'package:expense_tracker/transaction_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 
+import '../people.dart';
+
 class TransactionsPage extends StatefulWidget {
-  const TransactionsPage({super.key});
+  const TransactionsPage({super.key, required this.person});
+
+  final Person person;
 
   @override
   State<TransactionsPage> createState() => _TransactionsPageState();
@@ -21,19 +25,19 @@ class _TransactionsPageState extends State<TransactionsPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-              const Padding(
-                padding: EdgeInsets.only(
-                  bottom: 20,
-                ),
-                child: Text(
-                  "Transactions",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 35,
-                  ),
-                ),
-              ) as Widget,
-            ] +
+          const Padding(
+            padding: EdgeInsets.only(
+              bottom: 20,
+            ),
+            child: Text(
+              "Transactions",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 35,
+              ),
+            ),
+          ) as Widget,
+        ] +
             children,
       ),
     );
@@ -41,7 +45,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final futureTransactions =  getTransactions();
+    final futureTransactions = getPersonTransactions(personId: widget.person.id!);
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -74,8 +78,8 @@ class _TransactionsPageState extends State<TransactionsPage> {
               transactions
                   .map<Widget>(
                     (transaction) =>
-                        TransactionPreview(transaction: transaction),
-                  )
+                    TransactionPreview(transaction: transaction),
+              )
                   .toList(),
             );
           },
@@ -87,6 +91,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
           setState(() {});
         },
         fabKey: _key,
+        person: widget.person,
       ),
     );
   }
