@@ -1,11 +1,13 @@
 import 'package:expense_tracker/colors.dart';
 import 'package:expense_tracker/database.dart';
+import 'package:expense_tracker/pages/group_spending.dart';
 import 'package:expense_tracker/pages/person_transactions.dart';
 import 'package:expense_tracker/pages/transactions.dart';
 import 'package:expense_tracker/transaction_preview.dart';
 import 'package:flutter/material.dart';
 
 import '../people.dart';
+import '../profile_icon.dart';
 import 'new_person.dart';
 
 class PeoplePage extends StatefulWidget {
@@ -26,7 +28,14 @@ class _PeoplePageState extends State<PeoplePage> {
         title: const Text("People"),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const GroupSpendingPage(),
+                ),
+              );
+            },
             icon: const Icon(
               Icons.groups,
               color: Colors.white,
@@ -104,48 +113,20 @@ class PersonPreview extends StatelessWidget {
             color: accentColor,
             borderRadius: BorderRadius.circular(10),
             border: const Border(
-                left: BorderSide(
-                  color: primary,
-                  width: 0.5,
-                ),
-                right: BorderSide(
-                  color: primary,
-                  width: 0.5,
-                )),
+              left: BorderSide(
+                color: primary,
+                width: 0.5,
+              ),
+              right: BorderSide(
+                color: primary,
+                width: 0.5,
+              ),
+            ),
           ),
           padding: const EdgeInsets.all(10),
           child: Row(
             children: [
-              Container(
-                width: 40,
-                height: 40,
-                margin: const EdgeInsets.only(
-                  right: 20,
-                  left: 5,
-                ),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: accentLight,
-                  border: Border.all(
-                    color: Colors.white.withOpacity(0.1),
-                    width: 1,
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      person.name.characters.first,
-                      style: const TextStyle(
-                        color: primary,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              ProfileIcon(person: person),
               Expanded(
                 child: Text(
                   person.name,

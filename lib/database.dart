@@ -16,7 +16,7 @@ void createDb(Database db) {
   db.execute(
       "CREATE TABLE people_transactions (id INTEGER PRIMARY KEY AUTOINCREMENT, personId INTEGER, amount FLOAT, details TEXT, createdAt Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, category TEXT, isMoneyTransfer BOOLEAN)");
   db.execute(
-      "CREATE TABLE people (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, amount FLOAT);");
+      "CREATE TABLE people (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE, amount FLOAT);");
   db.execute("INSERT INTO keyedData (key, value) VALUES('money', '0')");
 }
 
