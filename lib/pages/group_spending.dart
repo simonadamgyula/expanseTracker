@@ -1,12 +1,14 @@
-import 'dart:developer';
-
-import 'package:expense_tracker/colors.dart';
-import 'package:expense_tracker/database.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:budget_buddy/colors.dart';
+import 'package:budget_buddy/database.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../people.dart';
 import '../profile_icon.dart';
+import '../transactions.dart';
+import 'new_transaction.dart';
+
+NumberFormat numberFormat = NumberFormat("#,##0.00", "hu_HU");
 
 extension Toggle<T> on List<T> {
   void toggle(T value) {
@@ -29,6 +31,9 @@ class _GroupSpendingPageState extends State<GroupSpendingPage> {
   Map<int, Person> peopleMap = {};
   List<Person>? people;
   List<int> selectedPeople = [];
+  final TextEditingController amountController = TextEditingController();
+  final TextEditingController detailsController = TextEditingController();
+  String selectedCategory = "";
 
   void _getPeople() {
     getPeople().then((people) {
@@ -91,9 +96,33 @@ class _GroupSpendingPageState extends State<GroupSpendingPage> {
     );
   }
 
+  void categorySelectCallback(String category) {
+    setState(() {
+      selectedCategory = category;
+    });
+  }
+
+  bool isFilledOut() {
+    if (selectedPeople.isEmpty) return false;
+    if (amountController.text.isEmpty) return false;
+    if (detailsController.text.isEmpty) return false;
+    if (selectedCategory.isEmpty) return false;
+
+    return true;
+  }
+
+  @override
+  void dispose() {
+    amountController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     _getPeople();
+
+    final amount = double.tryParse(amountController.text) ?? 0;
+    final amountPerPerson = amount / (selectedPeople.length + 1);
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -103,7 +132,7 @@ class _GroupSpendingPageState extends State<GroupSpendingPage> {
         backgroundColor: accentDark,
       ),
       body: Container(
-        margin: const EdgeInsets.only(top: 20),
+        margin: const EdgeInsets.all(20),
         width: double.infinity,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -156,7 +185,105 @@ class _GroupSpendingPageState extends State<GroupSpendingPage> {
                       return SelectedPerson(person: person);
                     }).toList(),
             ),
+            Container(
+              decoration: BoxDecoration(
+                color: accentColor,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    offset: const Offset(0, 2),
+                    blurRadius: 5,
+                  )
+                ],
+              ),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 4,
+              ),
+              margin: const EdgeInsets.only(top: 30, bottom: 14),
+              child: TextField(
+                controller: amountController,
+                keyboardType: const TextInputType.numberWithOptions(
+                  signed: true,
+                  decimal: true,
+                ),
+                style: const TextStyle(
+                  color: Colors.white,
+                ),
+                decoration: const InputDecoration(
+                  hintText: "Amount",
+                  hintStyle: TextStyle(
+                    color: Colors.grey,
+                    fontStyle: FontStyle.italic,
+                  ),
+                  border: InputBorder.none,
+                ),
+              ),
+            ),
+            DetailsInput(
+              detailsController: detailsController,
+            ),
+            CategoriesSelect(
+              selectCallback: categorySelectCallback,
+              selected: selectedCategory,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 32, bottom: 14),
+              child: Center(
+                child: Column(
+                  children: [
+                    Text(
+                      "Total amount: ${numberFormat.format(amount)} HUF",
+                      style: const TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
+                    Text(
+                      "Amount per person: ${numberFormat.format(amountPerPerson)} HUF",
+                      style: const TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (!isFilledOut()) return;
 
+                final amount = double.tryParse(amountController.text);
+                if (amount == null) return;
+
+                final Transaction originalTransaction = Transaction(
+                  details: detailsController.text,
+                  amount: amount,
+                  category: selectedCategory,
+                );
+
+                addGroupExpanse(
+                  originalTransaction,
+                  selectedPeople,
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: accentLight,
+                elevation: 8,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 15,
+                  horizontal: 5,
+                ),
+                child: Text(
+                  "Create",
+                  style: TextStyle(
+                    color: isFilledOut() ? Colors.white : Colors.grey,
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),

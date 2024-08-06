@@ -1,8 +1,6 @@
-import 'dart:developer';
-
-import 'package:expense_tracker/colors.dart';
-import 'package:expense_tracker/database.dart';
-import 'package:expense_tracker/transactions.dart';
+import 'package:budget_buddy/colors.dart';
+import 'package:budget_buddy/database.dart';
+import 'package:budget_buddy/transactions.dart';
 import 'package:flutter/material.dart';
 
 import '../categories.dart';
@@ -69,10 +67,16 @@ class _NewTransactionPageState extends State<NewTransactionPage> {
     await insertPersonTransaction(newTransaction, person: widget.person);
   }
 
+  bool isFilledOut() {
+    if (amountController.text.isEmpty) return false;
+    if (detailsController.text.isEmpty) return false;
+    if (selectedCategory.isEmpty) return false;
+
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
-    log(widget.person.toString());
-
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
@@ -99,8 +103,9 @@ class _NewTransactionPageState extends State<NewTransactionPage> {
             ),
             widget.person != null
                 ? Padding(
-                  padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
-                  child: CheckboxListTile(
+                    padding:
+                        const EdgeInsets.only(left: 20, right: 20, bottom: 20),
+                    child: CheckboxListTile(
                       value: isMoneyTransfer,
                       title: const Text(
                         "Money transfer?",
@@ -117,7 +122,7 @@ class _NewTransactionPageState extends State<NewTransactionPage> {
                         });
                       },
                     ),
-                )
+                  )
                 : const SizedBox(),
             const Text(
               "Categories",
@@ -133,6 +138,8 @@ class _NewTransactionPageState extends State<NewTransactionPage> {
             ),
             ElevatedButton(
               onPressed: () async {
+                if (!isFilledOut()) return;
+
                 final amount =
                     double.parse(amountController.text.replaceAll(",", "")) *
                         (isExpense ? -1 : 1);
@@ -150,19 +157,19 @@ class _NewTransactionPageState extends State<NewTransactionPage> {
                 backgroundColor: accentLight,
                 elevation: 8,
               ),
-              child: const Padding(
-                padding: EdgeInsets.symmetric(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
                   vertical: 15,
                   horizontal: 5,
                 ),
                 child: Text(
                   "Create",
                   style: TextStyle(
-                    color: Colors.white,
+                    color: isFilledOut() ? Colors.white : Colors.grey,
                   ),
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -403,50 +410,54 @@ class CategoriesSelect extends StatelessWidget {
           horizontal: 20,
           vertical: 10,
         ),
-        child: GridView.count(
-          crossAxisCount: 3,
-          crossAxisSpacing: 14,
-          mainAxisSpacing: 14,
-          childAspectRatio: (1 / 1.1),
-          children: categories.map<Widget>((category) {
-            bool isSelected = selected == category;
+        child: Scrollbar(
+          thickness: 1,
+          thumbVisibility: true,
+          child: GridView.count(
+            crossAxisCount: 3,
+            crossAxisSpacing: 14,
+            mainAxisSpacing: 14,
+            childAspectRatio: (1 / 1.1),
+            children: categories.map<Widget>((category) {
+              bool isSelected = selected == category;
 
-            return Column(
-              children: [
-                MaterialButton(
-                  color: isSelected ? primary : accentColor,
-                  onPressed: () {
-                    selectCallback(category);
-                  },
-                  shape: const CircleBorder(),
-                  elevation: 5,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      category.characters.first,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 25,
-                        fontWeight:
-                            isSelected ? FontWeight.bold : FontWeight.normal,
+              return Column(
+                children: [
+                  MaterialButton(
+                    color: isSelected ? primary : accentColor,
+                    onPressed: () {
+                      selectCallback(category);
+                    },
+                    shape: const CircleBorder(),
+                    elevation: 5,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        category.characters.first,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 25,
+                          fontWeight:
+                              isSelected ? FontWeight.bold : FontWeight.normal,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 10),
-                  child: Text(
-                    category,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: Text(
+                      category,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                      ),
                     ),
                   ),
-                ),
-              ],
-            );
-          }).toList(),
+                ],
+              );
+            }).toList(),
+          ),
         ),
       ),
     );

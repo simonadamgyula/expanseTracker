@@ -1,5 +1,5 @@
-import 'package:expense_tracker/database.dart';
-import 'package:expense_tracker/pages/main.dart';
+import 'package:budget_buddy/database.dart';
+import 'package:budget_buddy/pages/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 

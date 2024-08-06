@@ -1,8 +1,6 @@
-import 'dart:developer';
 
-import 'package:expense_tracker/people.dart';
-import 'package:expense_tracker/transactions.dart' as transactions;
-import 'package:expense_tracker/transactions.dart';
+import 'package:budget_buddy/people.dart';
+import 'package:budget_buddy/transactions.dart' as transactions;
 import 'package:flutter/widgets.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -217,4 +215,22 @@ Future<double> getPersonalDebt(int personId) async {
   }
 
   return personalDebt;
+}
+
+Future<void> addGroupExpanse(transactions.Transaction transaction, List<int> personIds) async {
+  double amountPerPerson = transaction.amount / (personIds.length + 1);
+
+  insertTransaction(transaction);
+
+  for (int personId in personIds) {
+    final transactions.PersonTransaction personTransaction = transactions.PersonTransaction(
+      details: "${transaction.details} (group)",
+      amount: -amountPerPerson,
+      category: transaction.category,
+      personId: personId,
+      isMoneyTransfer: false,
+    );
+
+    insertPersonTransaction(personTransaction);
+  }
 }

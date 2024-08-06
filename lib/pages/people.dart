@@ -1,9 +1,7 @@
-import 'package:expense_tracker/colors.dart';
-import 'package:expense_tracker/database.dart';
-import 'package:expense_tracker/pages/group_spending.dart';
-import 'package:expense_tracker/pages/person_transactions.dart';
-import 'package:expense_tracker/pages/transactions.dart';
-import 'package:expense_tracker/transaction_preview.dart';
+import 'package:budget_buddy/colors.dart';
+import 'package:budget_buddy/database.dart';
+import 'package:budget_buddy/pages/group_spending.dart';
+import 'package:budget_buddy/pages/person_transactions.dart';
 import 'package:flutter/material.dart';
 
 import '../people.dart';

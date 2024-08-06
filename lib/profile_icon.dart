@@ -1,4 +1,4 @@
-import 'package:expense_tracker/people.dart';
+import 'package:budget_buddy/people.dart';
 import 'package:flutter/material.dart';
 
 import 'colors.dart';

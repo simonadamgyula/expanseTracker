@@ -1,5 +1,5 @@
-import 'package:expense_tracker/colors.dart';
-import 'package:expense_tracker/database.dart';
+import 'package:budget_buddy/colors.dart';
+import 'package:budget_buddy/database.dart';
 import 'package:flutter/material.dart';
 
 import '../people.dart';
