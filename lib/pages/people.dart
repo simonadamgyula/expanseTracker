@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:budget_buddy/colors.dart';
 import 'package:budget_buddy/database.dart';
 import 'package:budget_buddy/pages/group_spending.dart';
@@ -86,10 +88,83 @@ class _PeoplePageState extends State<PeoplePage> {
   }
 }
 
-class PersonPreview extends StatelessWidget {
+class PersonPreview extends StatefulWidget {
   const PersonPreview({super.key, required this.person});
 
   final Person person;
+
+  @override
+  State<PersonPreview> createState() => _PersonPreviewState();
+}
+
+class _PersonPreviewState extends State<PersonPreview> {
+  final GlobalKey key = GlobalKey();
+
+  void showDeleteDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Delete transaction"),
+          titleTextStyle: const TextStyle(
+            color: Colors.white,
+          ),
+          content: const Text("Are you sure you want to delete this person?"),
+          backgroundColor: accentColor,
+          contentTextStyle: const TextStyle(
+            color: Colors.white70,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text(
+                "Cancel",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                deletePerson(widget.person.id!);
+                Navigator.pop(context);
+              },
+              child: const Text(
+                "Delete",
+                style: TextStyle(
+                  color: Colors.red,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showPopupMenu(BuildContext context, Offset offset) {
+    double left = offset.dx;
+    double top = offset.dy;
+
+    showMenu(
+      context: context,
+      position: RelativeRect.fromLTRB(left, top, 0, 0),
+      color: accentLight,
+      items: [
+        PopupMenuItem(
+          onTap: () {
+            showDeleteDialog(context);
+          },
+          child: const Text(
+            "Delete",
+            style: TextStyle(
+              color: Colors.red,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -101,10 +176,16 @@ class PersonPreview extends StatelessWidget {
             context,
             MaterialPageRoute(
               builder: (context) => PersonTransactionsPage(
-                person: person,
+                person: widget.person,
               ),
             ),
           );
+        },
+        onLongPress: () {
+          RenderBox box = key.currentContext?.findRenderObject() as RenderBox;
+          Offset position = box.localToGlobal(Offset.zero);
+          log(position.toString());
+          _showPopupMenu(context, position);
         },
         child: Container(
           decoration: BoxDecoration(
@@ -124,10 +205,10 @@ class PersonPreview extends StatelessWidget {
           padding: const EdgeInsets.all(10),
           child: Row(
             children: [
-              ProfileIcon(person: person),
+              ProfileIcon(person: widget.person),
               Expanded(
                 child: Text(
-                  person.name,
+                  widget.person.name,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 20,
@@ -137,7 +218,7 @@ class PersonPreview extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(right: 10),
                 child: Text(
-                  "${numberFormat.format(person.amount)} HUF",
+                  "${numberFormat.format(widget.person.amount)} HUF",
                   style: const TextStyle(
                     color: Colors.white,
                   ),

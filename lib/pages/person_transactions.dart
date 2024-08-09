@@ -25,97 +25,99 @@ class _PersonTransactionsPageState extends State<PersonTransactionsPage> {
 
     return Padding(
       padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-              Container(
-                height: 80,
-                margin: const EdgeInsets.only(
-                  top: 10,
-                  bottom: 60,
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 30),
-                decoration: BoxDecoration(
-                  color: accentColor,
-                  borderRadius: BorderRadius.circular(40),
-                  border: const Border(
-                    top: BorderSide(color: primary, width: 0.2),
-                    right: BorderSide(color: primary, width: 2),
-                    bottom: BorderSide(color: primary, width: 0.2),
-                    left: BorderSide(color: primary, width: 2),
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+                Container(
+                  height: 80,
+                  margin: const EdgeInsets.only(
+                    top: 10,
+                    bottom: 60,
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.3),
-                      offset: const Offset(0, 5),
-                      blurRadius: 15,
+                  padding: const EdgeInsets.symmetric(horizontal: 30),
+                  decoration: BoxDecoration(
+                    color: accentColor,
+                    borderRadius: BorderRadius.circular(40),
+                    border: const Border(
+                      top: BorderSide(color: primary, width: 0.2),
+                      right: BorderSide(color: primary, width: 2),
+                      bottom: BorderSide(color: primary, width: 0.2),
+                      left: BorderSide(color: primary, width: 2),
                     ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    FutureBuilder<double>(
-                      future: futurePersonalDebt,
-                      builder: (context, AsyncSnapshot<double> snapshot) {
-                        if (!snapshot.hasData) {
-                          return const Text(
-                            "Loading...",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 24,
-                              fontStyle: FontStyle.italic,
-                            ),
-                          );
-                        }
-
-                        final money = snapshot.data!;
-
-                        final text = switch (money) {
-                          > 0 => "They owes you ${numberFormat.format(money)} HUF",
-                          < 0 => "You owe them ${numberFormat.format(money)} HUF",
-                          _ => "You are all settled",
-                        };
-
-                        return Column(
-                          children: [
-                            Text(
-                              "${numberFormat.format(money)} HUF",
-                              style: const TextStyle(
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.3),
+                        offset: const Offset(0, 5),
+                        blurRadius: 15,
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      FutureBuilder<double>(
+                        future: futurePersonalDebt,
+                        builder: (context, AsyncSnapshot<double> snapshot) {
+                          if (!snapshot.hasData) {
+                            return const Text(
+                              "Loading...",
+                              style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              text,
-                              style: const TextStyle(
-                                color: Colors.grey,
-                                fontSize: 12,
                                 fontStyle: FontStyle.italic,
                               ),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              const Padding(
-                padding: EdgeInsets.only(
-                  bottom: 14,
-                ),
-                child: Text(
-                  "Transactions",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
+                            );
+                          }
+        
+                          final money = snapshot.data!;
+        
+                          final text = switch (money) {
+                            > 0 => "They owes you ${numberFormat.format(money)} HUF",
+                            < 0 => "You owe them ${numberFormat.format(money)} HUF",
+                            _ => "You are all settled",
+                          };
+        
+                          return Column(
+                            children: [
+                              Text(
+                                "${numberFormat.format(money)} HUF",
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                text,
+                                style: const TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 12,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ],
                   ),
                 ),
-              ) as Widget,
-            ] +
-            children,
+                const Padding(
+                  padding: EdgeInsets.only(
+                    bottom: 14,
+                  ),
+                  child: Text(
+                    "Transactions",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                    ),
+                  ),
+                ) as Widget,
+              ] +
+              children,
+        ),
       ),
     );
   }

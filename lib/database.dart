@@ -1,6 +1,7 @@
 
 import 'package:budget_buddy/people.dart';
 import 'package:budget_buddy/transactions.dart' as transactions;
+import 'package:budget_buddy/transactions.dart';
 import 'package:flutter/widgets.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -106,11 +107,45 @@ Future<List<transactions.PersonTransaction>> getPersonTransactions({
   ];
 }
 
+Future<transactions.Transaction?> getTransaction(int id) async {
+  final db = await database;
+
+  final List<Map<String, Object?>> transactionsWithId = await db.query(
+    "transactions",
+    where: "id = ?",
+    whereArgs: [id],
+    limit: 1,
+  );
+
+  return transactionsWithId.isEmpty
+      ? null
+      : transactions.Transaction.fromJson(transactionsWithId.first);
+}
+
+Future<transactions.PersonTransaction> getPersonTransaction(int id) async {
+  final db = await database;
+
+  final List<Map<String, Object?>> transactionsWithId = await db.query(
+    "people_transactions",
+    where: "id = ?",
+    whereArgs: [id],
+    limit: 1,
+  );
+
+  return transactions.PersonTransaction.fromJson(transactionsWithId.first);
+}
+
 Future<void> deleteTransaction(int id) async {
   final db = await database;
 
+  final transaction = await getTransaction(id);
+  if (transaction == null) return;
+
+  final money = await getMoney();
+  await updateMoney(money - transaction.amount);
+
   await db.delete(
-    "transaction",
+    "transactions",
     where: "id = ?",
     whereArgs: [id],
   );
@@ -219,6 +254,7 @@ Future<double> getPersonalDebt(int personId) async {
 
 Future<void> addGroupExpanse(transactions.Transaction transaction, List<int> personIds) async {
   double amountPerPerson = transaction.amount / (personIds.length + 1);
+  transaction.amount *= -1;
 
   insertTransaction(transaction);
 
@@ -233,4 +269,40 @@ Future<void> addGroupExpanse(transactions.Transaction transaction, List<int> per
 
     insertPersonTransaction(personTransaction);
   }
+}
+
+Future<void> deletePersonTransaction(int id) async {
+  final db = await database;
+
+  final transaction = await getPersonTransaction(id);
+
+  final person = await getPerson(transaction.personId);
+  person.amount -= transaction.amount;
+  updatePerson(person);
+
+  await db.delete(
+    "people_transactions",
+    where: "id = ?",
+    whereArgs: [id],
+  );
+}
+
+Future<void> deletePerson(int id) async {
+  final db = await database;
+
+  final List<Map<String, Object?>> transactionsWithPersonId = await db.query(
+    "people_transactions",
+    where: "personId = ?",
+    whereArgs: [id],
+  );
+
+  for (final transaction in transactionsWithPersonId) {
+    await deletePersonTransaction(transaction["id"] as int);
+  }
+
+  await db.delete(
+    "people",
+    where: "id = ?",
+    whereArgs: [id],
+  );
 }

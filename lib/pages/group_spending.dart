@@ -262,10 +262,14 @@ class _GroupSpendingPageState extends State<GroupSpendingPage> {
                   category: selectedCategory,
                 );
 
-                addGroupExpanse(
+                await addGroupExpanse(
                   originalTransaction,
                   selectedPeople,
                 );
+
+                if (!context.mounted) return;
+
+                Navigator.pop(context);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: accentLight,

@@ -131,10 +131,14 @@ class _HomePageState extends State<HomePage> {
               }
 
               if (!snapshot.hasData) {
-                return const Center(
-                  child: CircularProgressIndicator(
-                    color: Colors.white,
-                  ),
+                return const Column(
+                  children: [
+                    Center(
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
                 );
               }
 

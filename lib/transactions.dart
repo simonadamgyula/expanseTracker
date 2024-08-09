@@ -4,10 +4,10 @@ class Transaction {
   final int? id;
   final String? createdAt;
   final String details;
-  final double amount;
+  double amount;
   final String category;
 
-  const Transaction({
+  Transaction({
     this.id,
     this.createdAt,
     required this.details,
